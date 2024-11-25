@@ -68,4 +68,42 @@ describe("GET /api", () => {
         });
     });
   });
+
+  describe("GET /api/articles/:article_id", () => {
+    test("200: Responds with an article object with correct properties", () => {
+      return request(app)
+        .get("/api/articles/1")
+        .expect(200)
+        .then(({ body: { article } }) => {
+          expect(article).toMatchObject({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: expect.any(Number),
+            body: expect.any(String),
+            topic: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+          });
+        });
+    });
+
+    test("404: Responds with 'Not found' if a valid number is passed, but doesn't match to an article", () => {
+      return request(app)
+        .get("/api/articles/999")
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Article not found");
+        });
+    });
+
+    test("400: Responds with bad request if invalid ID passed", () => {
+      return request(app)
+        .get("/api/articles/invalid")
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request, expected number");
+        });
+    });
+  });
 });
