@@ -25,12 +25,12 @@ describe("GET /api", () => {
         expect(endpoints).toEqual(endpointsJson);
       });
   });
-  test("400: Responds with bad request if request made to invalid endpoint", () => {
+  test("404: Responds with not found for invalid endpoint", () => {
     return request(app)
       .get("/api/invalid")
-      .expect(400)
+      .expect(404)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad request");
+        expect(msg).toBe("Endpoint not found");
       });
   });
   describe("GET /api/topics", () => {
@@ -74,8 +74,9 @@ describe("GET /api", () => {
       return request(app)
         .get("/api/articles/1")
         .expect(200)
-        .then(({ body: { article } }) => {
-          expect(article).toMatchObject({
+        .then(({ body: { articles } }) => {
+          expect(articles.article_id).toBe(1);
+          expect(articles).toMatchObject({
             author: expect.any(String),
             title: expect.any(String),
             article_id: expect.any(Number),
@@ -102,7 +103,34 @@ describe("GET /api", () => {
         .get("/api/articles/invalid")
         .expect(400)
         .then(({ body: { msg } }) => {
-          expect(msg).toBe("Bad request, expected number");
+          expect(msg).toBe("Bad request");
+        });
+    });
+  });
+
+  describe("/api/articles", () => {
+    test("200: Should return an array of article objects, sorted by created_at in descending order", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles.length).toBe(13);
+          articles.forEach((article) => {
+            expect(article).toMatchObject({
+              author: expect.any(String),
+              title: expect.any(String),
+              article_id: expect.any(Number),
+              topic: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              article_img_url: expect.any(String),
+              comment_count: expect.any(String),
+            });
+          });
+          expect(articles).toBeSortedBy("created_at", {
+            descending: true,
+            coerce: true,
+          });
         });
     });
   });
