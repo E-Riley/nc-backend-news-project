@@ -14,10 +14,10 @@ exports.getTopics = (req, res, next) => {
 };
 
 exports.getArticleById = (req, res, next) => {
-  const articleId = req.params.article_id;
-  selectArticleById(articleId)
-    .then((article) => {
-      res.status(200).send({ article });
+  const { article_id } = req.params;
+  selectArticleById(article_id)
+    .then((articles) => {
+      res.status(200).send({ articles });
     })
     .catch(next);
 };
