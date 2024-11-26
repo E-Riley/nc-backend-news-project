@@ -8,6 +8,7 @@ const {
 const {
   getCommentsByArticle,
   postCommentToArticle,
+  deleteComment,
 } = require("./controllers/comments.controller");
 
 const app = express();
@@ -26,6 +27,8 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticle);
 app.post("/api/articles/:article_id/comments", postCommentToArticle);
 
 app.patch("/api/articles/:article_id", patchArticle);
+
+app.delete("/api/comments/:comment_id", deleteComment);
 
 app.all("*", (req, res, next) => {
   res.status(404).send({ msg: "Endpoint not found" });

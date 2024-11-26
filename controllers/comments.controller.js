@@ -2,6 +2,7 @@ const { selectArticleById } = require("../models/articles.models");
 const {
   selectCommentsByArticle,
   insertComment,
+  deleteCommentDb,
 } = require("../models/comments.model");
 const { selectUser } = require("../models/users.models");
 
@@ -34,6 +35,15 @@ exports.postCommentToArticle = (req, res, next) => {
   Promise.all(commentPromises)
     .then((promiseRes) => {
       res.status(201).send({ comment: promiseRes[2] });
+    })
+    .catch(next);
+};
+
+exports.deleteComment = (req, res, next) => {
+  const { comment_id } = req.params;
+  deleteCommentDb(comment_id)
+    .then(() => {
+      res.status(204).send();
     })
     .catch(next);
 };
