@@ -124,8 +124,9 @@ describe("GET /api", () => {
               created_at: expect.any(String),
               votes: expect.any(Number),
               article_img_url: expect.any(String),
-              comment_count: expect.any(String),
+              comment_count: expect.any(Number),
             });
+            expect(article.body).toBeUndefined();
           });
           expect(articles).toBeSortedBy("created_at", {
             descending: true,
@@ -160,12 +161,21 @@ describe("GET /api", () => {
         });
     });
 
-    test("404: Should return not found for valid ID that isnt present", () => {
+    test("200: Should return an empty array if article ID exists but no comments are present", () => {
+      return request(app)
+        .get("/api/articles/2/comments")
+        .expect(200)
+        .then(({ body: { comments } }) => {
+          expect(comments).toEqual([]);
+        });
+    });
+
+    test("404: Should return not found for well-formed ID that isn't present", () => {
       return request(app)
         .get("/api/articles/999/comments")
         .expect(404)
         .then(({ body: { msg } }) => {
-          expect(msg).toBe("Comments not found for this article");
+          expect(msg).toBe("Article not found");
         });
     });
 
