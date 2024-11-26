@@ -200,7 +200,6 @@ describe("GET /api", () => {
         .send(newComment)
         .expect(201)
         .then(({ body: { comment } }) => {
-          console.log(comment);
           expect(comment).toMatchObject({
             comment_id: expect.any(Number),
             body: newComment.body,

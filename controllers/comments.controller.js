@@ -31,8 +31,6 @@ exports.postCommentToArticle = (req, res, next) => {
     insertComment(article_id, username, body),
   ];
 
-  console.log(commentPromises);
-
   Promise.all(commentPromises)
     .then((promiseRes) => {
       res.status(201).send({ comment: promiseRes[2] });
