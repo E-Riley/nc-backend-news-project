@@ -4,9 +4,13 @@ const {
   getArticleById,
   getArticles,
 } = require("./controllers/articles.controller");
-const { getCommentsByArticle } = require("./controllers/comments.controller");
+const {
+  getCommentsByArticle,
+  postCommentToArticle,
+} = require("./controllers/comments.controller");
 
 const app = express();
+app.use(express.json());
 
 app.get("/api", getEndpoints);
 
@@ -18,13 +22,15 @@ app.get("/api/articles", getArticles);
 
 app.get("/api/articles/:article_id/comments", getCommentsByArticle);
 
+app.post("/api/articles/:article_id/comments", postCommentToArticle);
+
 app.all("*", (req, res, next) => {
   res.status(404).send({ msg: "Endpoint not found" });
   next();
 });
 
 app.use((err, req, res, next) => {
-  if (err.code === "22P02") {
+  if (err.code === "22P02" || err.code === "23502" || err.code === "23503") {
     res.status(400).send({ msg: "Bad request" });
   } else {
     next(err);
