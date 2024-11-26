@@ -254,4 +254,92 @@ describe("GET /api", () => {
         });
     });
   });
+
+  describe("PATCH /api/articles/:article_id", () => {
+    test("200: Should respond with the updated article when passed valid object", () => {
+      const testVote = { inc_votes: 5 };
+      return request(app)
+        .patch("/api/articles/1")
+        .send(testVote)
+        .expect(200)
+        .then(({ body: { article } }) => {
+          expect(article).toMatchObject({
+            article_id: 1,
+            title: "Living in the shadow of a great man",
+            topic: "mitch",
+            author: "butter_bridge",
+            body: "I find this existence challenging",
+            created_at: expect.any(String),
+            votes: 105,
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          });
+        });
+    });
+
+    test("200: Should respond with the updated article when passed valid object with negative votes", () => {
+      const testVote = { inc_votes: -5 };
+      return request(app)
+        .patch("/api/articles/1")
+        .send(testVote)
+        .expect(200)
+        .then(({ body: { article } }) => {
+          expect(article).toMatchObject({
+            article_id: 1,
+            title: "Living in the shadow of a great man",
+            topic: "mitch",
+            author: "butter_bridge",
+            body: "I find this existence challenging",
+            created_at: expect.any(String),
+            votes: 95,
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          });
+        });
+    });
+
+    test("400: Should respond with bad request if body is formatted incorrectle", () => {
+      const testVote = { incorrect_key: "test" };
+      return request(app)
+        .patch("/api/articles/1")
+        .send(testVote)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
+        });
+    });
+
+    test("400: Should return bad request if value of key on body isn't a number", () => {
+      const testVote = { inc_votes: "invalid" };
+      return request(app)
+        .patch("/api/articles/1")
+        .send(testVote)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
+        });
+    });
+
+    test("404: Should respond with not found if id is well formed but not found", () => {
+      const testVote = { inc_votes: 5 };
+      return request(app)
+        .patch("/api/articles/1000")
+        .send(testVote)
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Article not found");
+        });
+    });
+
+    test("400: Should respond with bad request if id is not correct type", () => {
+      const testVote = { inc_votes: 5 };
+      return request(app)
+        .patch("/api/articles/invalid")
+        .send(testVote)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
+        });
+    });
+  });
 });
