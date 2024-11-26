@@ -108,7 +108,7 @@ describe("GET /api", () => {
     });
   });
 
-  describe("/api/articles", () => {
+  describe("GET /api/articles", () => {
     test("200: Should return an array of article objects, sorted by created_at in descending order", () => {
       return request(app)
         .get("/api/articles")
@@ -136,7 +136,7 @@ describe("GET /api", () => {
     });
   });
 
-  describe("/api/articles/:article_id/comments", () => {
+  describe("GET /api/articles/:article_id/comments", () => {
     test("200: Should return an array of comment objects for the specified article", () => {
       return request(app)
         .get("/api/articles/1/comments")
@@ -185,6 +185,73 @@ describe("GET /api", () => {
         .expect(400)
         .then(({ body: { msg } }) => {
           expect(msg).toBe("Bad request");
+        });
+    });
+  });
+
+  describe("POST /api/articles/:article_id/comments", () => {
+    test("201: Should respond with the newly posted comment", () => {
+      const newComment = {
+        username: "butter_bridge",
+        body: "This is the test comment",
+      };
+      return request(app)
+        .post("/api/articles/1/comments")
+        .send(newComment)
+        .expect(201)
+        .then(({ body: { comment } }) => {
+          console.log(comment);
+          expect(comment).toMatchObject({
+            comment_id: expect.any(Number),
+            body: newComment.body,
+            article_id: 1,
+            author: newComment.username,
+            votes: 0,
+            created_at: expect.any(String),
+          });
+        });
+    });
+
+    test("400: Should respond with bad request if body is not formatted correctly", () => {
+      const newComment = {
+        username: "butter_bridge",
+      };
+      return request(app)
+        .post("/api/articles/1/comments")
+        .send(newComment)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
+        });
+    });
+
+    test("404: Should return not found if article ID cannot be found", () => {
+      // unsure if this should be 404 or 400
+      const newComment = {
+        username: "butter_bridge",
+        body: "This is the test comment",
+      };
+      return request(app)
+        .post("/api/articles/1000/comments")
+        .send(newComment)
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Article not found");
+        });
+    });
+
+    test("404: Should return not found if username is not found", () => {
+      // unsure if this should be 404 or 400
+      const newComment = {
+        username: "invalid_username",
+        body: "This is the test comment",
+      };
+      return request(app)
+        .post("/api/articles/1/comments")
+        .send(newComment)
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("User not found");
         });
     });
   });
