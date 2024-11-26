@@ -253,6 +253,20 @@ describe("GET /api", () => {
           expect(msg).toBe("User not found");
         });
     });
+
+    test("400: Should return bad request if invalid url parameter", () => {
+      const newComment = {
+        username: "invalid_username",
+        body: "This is the test comment",
+      };
+      return request(app)
+        .post("/api/articles/invalid/comments")
+        .send(newComment)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
+        });
+    });
   });
 
   describe("PATCH /api/articles/:article_id", () => {
@@ -339,6 +353,30 @@ describe("GET /api", () => {
         .expect(400)
         .then(({ body: { msg } }) => {
           expect(msg).toBe("Bad request");
+        });
+    });
+  });
+
+  describe("DELETE /api/comments/:comment_id", () => {
+    test("204: Should return no content upon succesful deletion", () => {
+      return request(app).delete("/api/comments/1").expect(204);
+    });
+
+    test("400: Should return bad request if comment id isn't well formed", () => {
+      return request(app)
+        .delete("/api/comments/invalid")
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
+        });
+    });
+
+    test("404: Should return not found in comment id is well formed but cannot be found", () => {
+      return request(app)
+        .delete("/api/comments/9999")
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Comment not found");
         });
     });
   });
