@@ -134,6 +134,54 @@ describe("GET /api", () => {
           });
         });
     });
+
+    test("200: Should accept sort_by query which will change the column that the array is sorted by", () => {
+      return request(app)
+        .get("/api/articles?sort_by=article_id")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles.length).toBe(13);
+          expect(articles).toBeSortedBy("article_id", { descending: true });
+        });
+    });
+
+    test("200: Should accept order query which will change the ascending or descending order of the sort", () => {
+      return request(app)
+        .get("/api/articles?order=asc")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles.length).toBe(13);
+          expect(articles).toBeSortedBy("created_at");
+        });
+    });
+
+    test("200: Should accept both sort_by and order queries and sort accordingly", () => {
+      return request(app)
+        .get("/api/articles?sort_by=title&order=asc")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles.length).toBe(13);
+          expect(articles).toBeSortedBy("title");
+        });
+    });
+
+    test("400: Should return bad request if passed an invalid sort_by", () => {
+      return request(app)
+        .get("/api/articles?sort_by=invalid")
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
+        });
+    });
+
+    test("400: Should return bad request if passed an invalid order", () => {
+      return request(app)
+        .get("/api/articles?order=; DROP articles")
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
+        });
+    });
   });
 
   describe("GET /api/articles/:article_id/comments", () => {
