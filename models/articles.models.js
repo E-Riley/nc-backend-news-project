@@ -15,7 +15,7 @@ exports.selectArticleById = (article_id) => {
     });
 };
 
-exports.selectArticles = (sort_by = "created_at", order = "desc") => {
+exports.selectArticles = (sort_by = "created_at", order = "desc", topic) => {
   const validSortBy = [
     "article_id",
     "title",
@@ -28,6 +28,8 @@ exports.selectArticles = (sort_by = "created_at", order = "desc") => {
 
   const validOrder = ["ASC", "DESC"];
 
+  const validTopic = ["paper", "cats", "mitch"];
+
   if (
     !validSortBy.includes(sort_by) ||
     !validOrder.includes(order.toUpperCase())
@@ -37,15 +39,25 @@ exports.selectArticles = (sort_by = "created_at", order = "desc") => {
       msg: "Bad request",
     });
   }
-  return db
-    .query(
-      `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, 
-      articles.article_img_url, CAST(COUNT(comments.article_id) as INT) AS comment_count FROM articles LEFT OUTER JOIN comments ON 
-      articles.article_id = comments.article_id GROUP BY articles.article_id ORDER BY articles.${sort_by} ${order}`
-    )
-    .then(({ rows }) => {
-      return rows;
-    });
+
+  let sqlQuery = `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, 
+  articles.article_img_url, CAST(COUNT(comments.article_id) as INT) AS comment_count FROM articles LEFT OUTER JOIN comments ON 
+  articles.article_id = comments.article_id `;
+  const queryValues = [];
+
+  if (topic) {
+    if (!validTopic.includes(topic)) {
+      return Promise.reject({ status: 400, msg: "Bad request" });
+    }
+    sqlQuery += `WHERE articles.topic = $1 `;
+    queryValues.push(topic);
+  }
+
+  sqlQuery += `GROUP BY articles.article_id ORDER BY articles.${sort_by} ${order}`;
+
+  return db.query(sqlQuery, queryValues).then(({ rows }) => {
+    return rows;
+  });
 };
 
 exports.updateArticle = (article_id, inc_votes) => {

@@ -182,6 +182,36 @@ describe("GET /api", () => {
           expect(msg).toBe("Bad request");
         });
     });
+
+    test("200: Should return an array of articles filtered by passed topic query", () => {
+      return request(app)
+        .get("/api/articles?topic=mitch")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles.length).toBe(12);
+          articles.forEach((article) => {
+            expect(article.topic).toBe("mitch");
+          });
+        });
+    });
+
+    test("200: Should return an empty array when passed a topic that doesn't have any articles", () => {
+      return request(app)
+        .get("/api/articles?topic=paper")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles.length).toBe(0);
+        });
+    });
+
+    test("400: Should return bad request if passed invalid topic that does not exist", () => {
+      return request(app)
+        .get("/api/articles?topic=banana")
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
+        });
+    });
   });
 
   describe("GET /api/articles/:article_id/comments", () => {
