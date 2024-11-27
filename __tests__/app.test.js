@@ -106,6 +106,26 @@ describe("GET /api", () => {
           expect(msg).toBe("Bad request");
         });
     });
+
+    test("200: Should return a response article object containing a comment count", () => {
+      return request(app)
+        .get("/api/articles/1")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles.article_id).toBe(1);
+          expect(articles).toMatchObject({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: expect.any(Number),
+            body: expect.any(String),
+            topic: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+            comment_count: expect.any(Number),
+          });
+        });
+    });
   });
 
   describe("GET /api/articles", () => {
