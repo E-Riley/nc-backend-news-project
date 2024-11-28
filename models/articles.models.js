@@ -28,8 +28,6 @@ exports.selectArticles = (sort_by = "created_at", order = "desc", topic) => {
 
   const validOrder = ["ASC", "DESC"];
 
-  const validTopic = ["paper", "cats", "mitch"];
-
   if (
     !validSortBy.includes(sort_by) ||
     !validOrder.includes(order.toUpperCase())
@@ -46,9 +44,6 @@ exports.selectArticles = (sort_by = "created_at", order = "desc", topic) => {
   const queryValues = [];
 
   if (topic) {
-    if (!validTopic.includes(topic)) {
-      return Promise.reject({ status: 400, msg: "Bad request" });
-    }
     sqlQuery += `WHERE articles.topic = $1 `;
     queryValues.push(topic);
   }

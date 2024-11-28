@@ -1,3 +1,4 @@
+const { selectTopicBySlug } = require("../models/api.models");
 const {
   selectArticleById,
   selectArticles,
@@ -15,8 +16,12 @@ exports.getArticleById = (req, res, next) => {
 
 exports.getArticles = (req, res, next) => {
   const { sort_by, order, topic } = req.query;
-  selectArticles(sort_by, order, topic)
-    .then((articles) => {
+  const promiseArr = [selectArticles(sort_by, order, topic)];
+  if (topic) {
+    promiseArr.push(selectTopicBySlug(topic));
+  }
+  Promise.all(promiseArr)
+    .then(([articles]) => {
       res.status(200).send({ articles });
     })
     .catch(next);
