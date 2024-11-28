@@ -77,17 +77,19 @@ describe("GET /api", () => {
         .then(({ body: { articles } }) => {
           expect(articles.article_id).toBe(1);
           expect(articles).toMatchObject({
-            author: expect.any(String),
-            title: expect.any(String),
-            article_id: expect.any(Number),
-            body: expect.any(String),
-            topic: expect.any(String),
+            author: "butter_bridge",
+            title: "Living in the shadow of a great man",
+            article_id: 1,
+            body: "I find this existence challenging",
+            topic: "mitch",
             created_at: expect.any(String),
-            votes: expect.any(Number),
-            article_img_url: expect.any(String),
+            votes: 100,
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
           });
         });
     });
+    article_id: expect.any(Number);
 
     test("404: Responds with 'Not found' if a valid number is passed, but doesn't match to an article", () => {
       return request(app)
@@ -114,15 +116,16 @@ describe("GET /api", () => {
         .then(({ body: { articles } }) => {
           expect(articles.article_id).toBe(1);
           expect(articles).toMatchObject({
-            author: expect.any(String),
-            title: expect.any(String),
-            article_id: expect.any(Number),
-            body: expect.any(String),
-            topic: expect.any(String),
+            author: "butter_bridge",
+            title: "Living in the shadow of a great man",
+            article_id: 1,
+            body: "I find this existence challenging",
+            topic: "mitch",
             created_at: expect.any(String),
-            votes: expect.any(Number),
-            article_img_url: expect.any(String),
-            comment_count: expect.any(Number),
+            votes: 100,
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+            comment_count: 11,
           });
         });
     });
@@ -224,12 +227,12 @@ describe("GET /api", () => {
         });
     });
 
-    test("400: Should return bad request if passed invalid topic that does not exist", () => {
+    test("404: Should return not found if passed invalid topic that does not exist", () => {
       return request(app)
         .get("/api/articles?topic=banana")
-        .expect(400)
+        .expect(404)
         .then(({ body: { msg } }) => {
-          expect(msg).toBe("Bad request");
+          expect(msg).toBe("Topic not found");
         });
     });
   });
