@@ -604,4 +604,111 @@ describe("GET /api", () => {
         });
     });
   });
+
+  describe("POST /api/articles", () => {
+    test("201: Should return the newly posted article if body well formed with default article_img_url", () => {
+      const newArticle = {
+        author: "butter_bridge",
+        title: "This is a test",
+        body: "Testing post articles",
+        topic: "paper",
+      };
+      return request(app)
+        .post("/api/articles")
+        .send(newArticle)
+        .expect(201)
+        .then(({ body: { article } }) => {
+          expect(article).toMatchObject({
+            author: "butter_bridge",
+            title: "This is a test",
+            body: "Testing post articles",
+            topic: "paper",
+            article_img_url:
+              "https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700",
+            article_id: 14,
+            votes: 0,
+            created_at: expect.any(String),
+            comment_count: 0,
+          });
+        });
+    });
+
+    test("201: Should return the newly posted article if body well formed with new article_img_url", () => {
+      const newArticle = {
+        author: "butter_bridge",
+        title: "This is a test",
+        body: "Testing post articles",
+        topic: "paper",
+        article_img_url: "this-is-a-test-url.com",
+      };
+      return request(app)
+        .post("/api/articles")
+        .send(newArticle)
+        .expect(201)
+        .then(({ body: { article } }) => {
+          expect(article).toMatchObject({
+            author: "butter_bridge",
+            title: "This is a test",
+            body: "Testing post articles",
+            topic: "paper",
+            article_img_url: "this-is-a-test-url.com",
+            article_id: 14,
+            votes: 0,
+            created_at: expect.any(String),
+            comment_count: 0,
+          });
+        });
+    });
+
+    test("404: Should return not found if passed an author that doesn't exist", () => {
+      const newArticle = {
+        author: "invalid_author",
+        title: "This is a test",
+        body: "Testing post articles",
+        topic: "paper",
+        article_img_url: "this-is-a-test-url.com",
+      };
+
+      return request(app)
+        .post("/api/articles")
+        .send(newArticle)
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("User not found");
+        });
+    });
+
+    test("404: Should return not found when passed a topic that doesn't exist", () => {
+      const newArticle = {
+        author: "butter_bridge",
+        title: "This is a test",
+        body: "Testing post articles",
+        topic: "invalid_topic",
+        article_img_url: "this-is-a-test-url.com",
+      };
+
+      return request(app)
+        .post("/api/articles")
+        .send(newArticle)
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Topic not found");
+        });
+    });
+
+    test("400: Should return bad request if body is not well formed", () => {
+      const newArticle = {
+        author: "butter_bridge",
+        title: "This is a test",
+      };
+
+      return request(app)
+        .post("/api/articles")
+        .send(newArticle)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
+        });
+    });
+  });
 });

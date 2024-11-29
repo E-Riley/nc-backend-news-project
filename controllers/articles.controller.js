@@ -3,7 +3,9 @@ const {
   selectArticleById,
   selectArticles,
   updateArticle,
+  insertArticle,
 } = require("../models/articles.models");
+const { selectUser } = require("../models/users.models");
 
 exports.getArticleById = (req, res, next) => {
   const { article_id } = req.params;
@@ -40,6 +42,25 @@ exports.patchArticle = (req, res, next) => {
   Promise.all(articlePromise)
     .then(([article]) => {
       res.status(200).send({ article });
+    })
+    .catch(next);
+};
+
+exports.postArticle = (req, res, next) => {
+  const {
+    body: { author, title, body, topic, article_img_url },
+  } = req;
+
+  const articlePromise = [
+    selectUser(author),
+    selectTopicBySlug(topic),
+    insertArticle(author, title, body, topic, article_img_url),
+  ];
+
+  Promise.all(articlePromise)
+    .then((promiseResult) => {
+      const article = { ...promiseResult[2], comment_count: 0 };
+      res.status(201).send({ article });
     })
     .catch(next);
 };
