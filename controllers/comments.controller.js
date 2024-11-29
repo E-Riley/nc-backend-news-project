@@ -3,6 +3,8 @@ const {
   selectCommentsByArticle,
   insertComment,
   deleteCommentDb,
+  updateComment,
+  selectCommentById,
 } = require("../models/comments.model");
 const { selectUser } = require("../models/users.models");
 
@@ -44,6 +46,24 @@ exports.deleteComment = (req, res, next) => {
   deleteCommentDb(comment_id)
     .then(() => {
       res.status(204).send();
+    })
+    .catch(next);
+};
+
+exports.patchComment = (req, res, next) => {
+  const {
+    params: { comment_id },
+    body: { inc_votes },
+  } = req;
+
+  const commentPromise = [
+    updateComment(comment_id, inc_votes),
+    selectCommentById(comment_id),
+  ];
+
+  Promise.all(commentPromise)
+    .then(([comment]) => {
+      res.status(200).send({ comment });
     })
     .catch(next);
 };

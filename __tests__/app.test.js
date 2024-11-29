@@ -413,7 +413,7 @@ describe("GET /api", () => {
         });
     });
 
-    test("400: Should respond with bad request if body is formatted incorrectle", () => {
+    test("400: Should respond with bad request if body is formatted incorrectly", () => {
       const testVote = { incorrect_key: "test" };
       return request(app)
         .patch("/api/articles/1")
@@ -496,6 +496,111 @@ describe("GET /api", () => {
               avatar_url: expect.any(String),
             });
           });
+        });
+    });
+  });
+
+  describe("GET /api/users/:username", () => {
+    test("200: Should respond with a user object when passed a valid username", () => {
+      return request(app)
+        .get("/api/users/butter_bridge")
+        .expect(200)
+        .then(({ body: { user } }) => {
+          expect(user).toMatchObject({
+            username: "butter_bridge",
+            name: "jonny",
+            avatar_url:
+              "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+          });
+        });
+    });
+
+    test("404: Should return not found if username does not exist", () => {
+      return request(app)
+        .get("/api/users/invalid_username")
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("User not found");
+        });
+    });
+  });
+
+  describe("PATCH /api/comments/:comment_id", () => {
+    test("200: Should return the newly updated comment with votes increased", () => {
+      const testVote = { inc_votes: 5 };
+      return request(app)
+        .patch("/api/comments/1")
+        .send(testVote)
+        .expect(200)
+        .then(({ body: { comment } }) => {
+          expect(comment).toMatchObject({
+            comment_id: 1,
+            body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+            votes: 21,
+            article_id: 9,
+            created_at: expect.any(String),
+          });
+        });
+    });
+
+    test("200: Should correctly reduce the number of votes when passed a negative number", () => {
+      const testVote = { inc_votes: -5 };
+      return request(app)
+        .patch("/api/comments/1")
+        .send(testVote)
+        .expect(200)
+        .then(({ body: { comment } }) => {
+          expect(comment).toMatchObject({
+            comment_id: 1,
+            body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+            votes: 11,
+            article_id: 9,
+            created_at: expect.any(String),
+          });
+        });
+    });
+
+    test("400: Should return bad request if body is formatted incorrectly", () => {
+      const testVote = { invalid: 5 };
+      return request(app)
+        .patch("/api/comments/1")
+        .send(testVote)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
+        });
+    });
+
+    test("400: Should return bad request if value of inc_votes is not a number", () => {
+      const testVote = { inc_votes: "invalid" };
+      return request(app)
+        .patch("/api/comments/1")
+        .send(testVote)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
+        });
+    });
+
+    test("400: Should return bad request if comment_id isn't well formed", () => {
+      const testVote = { inc_votes: 5 };
+      return request(app)
+        .patch("/api/comments/invalid_id")
+        .send(testVote)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
+        });
+    });
+
+    test("404: Should return not found if comment_id is well formed but is not found", () => {
+      const testVote = { inc_votes: 5 };
+      return request(app)
+        .patch("/api/comments/1000")
+        .send(testVote)
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Comment not found");
         });
     });
   });
