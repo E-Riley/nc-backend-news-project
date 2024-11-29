@@ -65,3 +65,27 @@ exports.updateArticle = (article_id, inc_votes) => {
       return rows[0];
     });
 };
+
+exports.insertArticle = (author, title, body, topic, article_img_url) => {
+  const sqlQuery =
+    article_img_url === undefined
+      ? `
+        INSERT INTO articles (title, topic, author, body)
+        VALUES ($1, $2, $3, $4)
+        RETURNING *
+      `
+      : `
+        INSERT INTO articles (title, topic, author, body, article_img_url)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING *
+      `;
+
+  const queryValues =
+    article_img_url === undefined
+      ? [title, topic, author, body]
+      : [title, topic, author, body, article_img_url];
+
+  return db.query(sqlQuery, queryValues).then(({ rows }) => {
+    return rows[0];
+  });
+};

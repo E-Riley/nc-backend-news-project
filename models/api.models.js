@@ -10,6 +10,9 @@ exports.selectTopics = () => {
 };
 
 exports.selectTopicBySlug = (topic) => {
+  if (!topic) {
+    return Promise.reject({ status: 400, msg: "Bad request" });
+  }
   return db
     .query("SELECT * FROM topics WHERE slug = $1", [topic])
     .then(({ rows }) => {
