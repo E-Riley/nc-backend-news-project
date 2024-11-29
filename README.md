@@ -105,7 +105,9 @@ https://ethans-nc-backend-news-project.onrender.com/api
 | GET    | `/api/users`                         | Fetches all users                                                       |
 | GET    | `/api/users/:username`               | Fetches a user object by username                                       |
 | POST   | `/api/users/:article_id/comments`    | Posts a new comment to an article                                       |
+| POST   | `/api/articles`                      | Posts a new article                                                     |
 | PATCH  | `/api/articles/:article_id`          | Updates an article's votes                                              |
+| PATCH  | `/api/comments/:comment_id`          | Updates the votes on a comment                                          |
 | DELETE | `/api/comments/:comment_id`          | Deletes a specific comment                                              |
 
 ---
