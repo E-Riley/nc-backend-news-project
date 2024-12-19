@@ -49,7 +49,9 @@ exports.selectArticles = (sort_by = "created_at", order = "desc", topic) => {
     queryValues.push(topic);
   }
 
-  sqlQuery += `GROUP BY articles.article_id ORDER BY articles.${sort_by} ${order}`;
+  sqlQuery += `GROUP BY articles.article_id ORDER BY ${
+    sort_by === "comment_count" ? "comment_count" : `articles.${sort_by}`
+  } ${order}`;
 
   return db.query(sqlQuery, queryValues).then(({ rows }) => {
     return rows;
