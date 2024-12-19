@@ -24,6 +24,7 @@ exports.selectArticles = (sort_by = "created_at", order = "desc", topic) => {
     "body",
     "created_at",
     "votes",
+    "comment_count",
   ];
 
   const validOrder = ["ASC", "DESC"];
